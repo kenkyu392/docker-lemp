@@ -1,0 +1,52 @@
+version: '3'
+services:
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: lemp-php74
+    env_file:
+      - .env
+    volumes:
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./www:/var/www/html
+    depends_on:
+      - mysql
+  nginx:
+    image: nginx:1.16-alpine
+    container_name: lemp-nginx116
+    ports:
+      - ${NGINX_PORT}:80
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./www:/var/www/html
+      - ./data/log/nginx:/var/log/nginx
+    depends_on:
+      - php
+  mysql:
+    image: mysql:5.7
+    container_name: lemp-mysql57
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: dockerrootpass
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./data/lib/mysql:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: lemp-phpmyadmin5
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql
+    ports:
+      - ${PMA_PORT}:80
+    volumes:
+      - ./data/lib/phpmyadmin:/var/lib/phpmyadmin
