@@ -26,4 +26,4 @@ LEMP: Linux + Nginx 1.16.x + MySQL 5.7 + PHP 7.4 + phpMyAdmin 5
 
 ## License
 
-[MIT](https://github.com/kenkyu392/docker-lemp/blob/master/LICENSE)
+[MIT](LICENSE)
